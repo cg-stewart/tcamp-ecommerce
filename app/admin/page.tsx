@@ -1,4 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import {
   Card,
@@ -9,12 +8,13 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, DollarSign, Package, Users } from "lucide-react";
+import { checkRole } from "@/lib/roles";
 
 export default async function AdminDashboardPage() {
-  const session = await auth();
-  
-  if (!session?.userId) {
-    redirect("/sign-in");
+  const isAdmin = await checkRole("admin");
+
+  if (!isAdmin) {
+    redirect("/");
   }
   return (
     <div className="flex flex-col gap-6">

@@ -1,6 +1,6 @@
 # T-Camp E-commerce Platform
 
-A modern e-commerce and workshop management platform built with Next.js 14, featuring Role-Based Access Control (RBAC) and a luxurious UI design.
+A modern e-commerce and workshop management platform built with Next.js 15, featuring Role-Based Access Control (RBAC) and a luxurious UI design.
 
 ## Features
 
@@ -26,7 +26,7 @@ A modern e-commerce and workshop management platform built with Next.js 14, feat
 
 ## Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Framework**: Next.js 15 (App Router)
 - **Authentication**: Clerk
 - **Database**: Supabase with Drizzle ORM
 - **UI Components**: 

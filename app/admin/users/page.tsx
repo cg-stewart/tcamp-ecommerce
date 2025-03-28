@@ -1,31 +1,61 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
-
-export async function generateMetadata() {
-  const session = await auth();
-  
-  if (!session?.userId) {
-    redirect("/sign-in");
-  }
-  
-  return {
-    title: "User Management - Admin Dashboard",
-  };
-}
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Search, MoreHorizontal, Calendar, User, CalendarIcon, ShoppingBag } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  Search,
+  MoreHorizontal,
+  Calendar,
+  User,
+  CalendarIcon,
+  ShoppingBag,
+} from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { getAllUsers, updateUser } from "@/app/actions/user-actions";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+
+export async function generateMetadata() {
+  const { has } = await auth();
+  const isAdmin = await has({ role: 'org:admin' });
+
+  if (!isAdmin) {
+    redirect('/');
+  }
+
+  return {
+    title: "User Management - Admin Dashboard",
+  };
+}
 
 export default function AdminUsersPage() {
   const { toast } = useToast();
@@ -52,7 +82,13 @@ export default function AdminUsersPage() {
     loadUsers();
   }, []);
 
-  const handleViewUser = (user: { id: string; name: string; email: string; status: string; role?: string }) => {
+  const handleViewUser = (user: {
+    id: string;
+    name: string;
+    email: string;
+    status: string;
+    role?: string;
+  }) => {
     setSelectedUser(user);
     setIsViewDialogOpen(true);
   };
@@ -63,18 +99,18 @@ export default function AdminUsersPage() {
     try {
       // Create FormData
       const formData = new FormData();
-      formData.append('status', newStatus);
+      formData.append("status", newStatus);
 
       const result = await updateUser(user.id, formData);
 
       if (!result.success) {
-        throw new Error(result.message || 'Failed to update user');
+        throw new Error(result.message || "Failed to update user");
       }
 
       // Update local data
-      setUsers(users.map((u) => 
-        u.id === user.id ? { ...u, status: newStatus } : u
-      ));
+      setUsers(
+        users.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u))
+      );
 
       toast({
         description: `User is now ${newStatus}.`,

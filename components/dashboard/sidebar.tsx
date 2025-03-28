@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { UserButton, useUser } from "@clerk/nextjs";
 import {
   BarChart,
   Calendar,
@@ -9,12 +10,11 @@ import {
   Home,
   Settings,
   Users,
-  FileText,
   LayoutDashboard,
   Pencil,
   Mail,
   HeartHandshake,
-} from "lucide-react"
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -24,14 +24,17 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 interface DashboardSidebarProps {
-  isAdmin?: boolean
+  isAdmin?: boolean;
 }
 
-export default function DashboardSidebar({ isAdmin = false }: DashboardSidebarProps) {
-  const pathname = usePathname()
+export default function DashboardSidebar({
+  isAdmin = false,
+}: DashboardSidebarProps) {
+  const pathname = usePathname();
+  const { user } = useUser();
 
   const userNavItems = [
     {
@@ -58,13 +61,7 @@ export default function DashboardSidebar({ isAdmin = false }: DashboardSidebarPr
       icon: CreditCard,
       isActive: pathname === "/dashboard/billing",
     },
-    {
-      title: "Settings",
-      href: "/dashboard/settings",
-      icon: Settings,
-      isActive: pathname === "/dashboard/settings",
-    },
-  ]
+  ];
 
   const adminNavItems = [
     {
@@ -110,14 +107,17 @@ export default function DashboardSidebar({ isAdmin = false }: DashboardSidebarPr
       isActive: pathname === "/admin/analytics",
     },
     // Content and Settings routes removed as they're not needed
-  ]
+  ];
 
-  const navItems = isAdmin ? adminNavItems : userNavItems
+  const navItems = isAdmin ? adminNavItems : userNavItems;
 
   return (
     <Sidebar className="bg-luxury-charcoal text-luxury-lavender border-r border-luxury-gold/20">
       <SidebarHeader className="border-b border-luxury-gold/20">
-        <Link href={isAdmin ? "/admin" : "/dashboard"} className="flex items-center gap-2 px-2">
+        <Link
+          href={isAdmin ? "/admin" : "/dashboard"}
+          className="flex items-center gap-2 px-2"
+        >
           <span className="font-bold text-xl text-luxury-gold">TCamp</span>
         </Link>
       </SidebarHeader>
@@ -144,11 +144,25 @@ export default function DashboardSidebar({ isAdmin = false }: DashboardSidebarPr
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="border-t border-luxury-gold/20">
-        <div className="p-4">
-          <p className="text-xs text-luxury-gold">&copy; {new Date().getFullYear()} TCamp</p>
+        <div className="p-4 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: {
+                  userButtonAvatarBox: "w-8 h-8",
+                  userButtonTrigger: "focus:shadow-none",
+                },
+              }}
+            />
+            <div className="flex flex-col">
+              <span className="text-xs text-luxury-gold/60 truncate">
+                {user?.emailAddresses[0]?.emailAddress}
+              </span>
+            </div>
+          </div>
         </div>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
-
