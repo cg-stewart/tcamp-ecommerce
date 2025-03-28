@@ -1,5 +1,36 @@
+"use client";
+
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { 
+  Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter 
+} from "@/components/ui/card";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { useUploadThing } from "@/lib/utils/uploadthing";
+import "@uploadthing/react/styles.css";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { toast } from "@/components/ui/use-toast";
+import { 
+  ArrowLeft, Edit, Calendar, Clock, MapPin, UserCheck, UploadCloud, 
+  MessageSquare, FileText, Video, Image as ImageIcon, 
+  Plus, Mail, RefreshCw, Send, Download, Trash, Info, Volume2, Loader2
+} from "lucide-react";
+import Link from "next/link";
+import useSWR from "swr";
+import { useWorkshopRegistrations } from "@/lib/hooks/use-admin";
+import { fetcher } from "@/lib/swr-fetchers";
 
 export async function generateMetadata() {
   const session = await auth();
@@ -12,38 +43,6 @@ export async function generateMetadata() {
     title: "Workshop Details - Admin Dashboard",
   };
 }
-
-"use client";
-
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { 
-  Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter 
-} from "@/components/ui/card";
-import { useUploadThing } from "@/lib/utils/uploadthing";
-import "@uploadthing/react/styles.css";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { toast } from "@/components/ui/use-toast";
-import { 
-  ArrowLeft, Edit, Calendar, Clock, MapPin, UserCheck, UploadCloud, 
-  MessageSquare, FileText, Video, Image as ImageIcon, Users, MoreHorizontal, 
-  Plus, Mail, RefreshCw, Send, Download, Trash, Info, Volume2, Loader2
-} from "lucide-react";
-import Link from "next/link";
-import useSWR from "swr";
-import { useWorkshopRegistrations } from "@/lib/hooks/use-admin";
-import { fetcher } from "@/lib/swr-fetchers";
 
 export default function WorkshopDetailsPage() {
   const params = useParams();
@@ -62,6 +61,42 @@ export default function WorkshopDetailsPage() {
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
 
+  // Define types for the data
+  interface Workshop {
+    id: string;
+    title: string;
+    description: string;
+    startDate: string;
+    endDate: string;
+    location: string;
+    status: string;
+    capacity: number;
+    registrationCount: number;
+    isFeatured: boolean;
+    date: string;
+    time: string;
+  }
+
+  interface Resource {
+    id: string;
+    title: string;
+    description: string;
+    type: 'document' | 'image' | 'video' | 'audio';
+    url: string;
+    createdAt: string;
+  }
+
+  interface Message {
+    id: string;
+    content: string;
+    createdAt: string;
+    userName: string;
+    sender: {
+      name: string;
+      email: string;
+    };
+  }
+
   // Fetch workshop data
   const { 
     data: workshop, 
@@ -70,7 +105,7 @@ export default function WorkshopDetailsPage() {
     mutate: mutateWorkshop
   } = useSWR<{
     success: boolean;
-    data: any;
+    data: Workshop;
   }>(
     `/api/admin/workshops/${workshopId}`,
     fetcher
@@ -92,7 +127,7 @@ export default function WorkshopDetailsPage() {
     mutate: mutateResources
   } = useSWR<{
     success: boolean;
-    data: any[];
+    data: Resource[];
   }>(
     `/api/admin/workshops/${workshopId}/resources`,
     fetcher
@@ -106,7 +141,7 @@ export default function WorkshopDetailsPage() {
     mutate: mutateMessages
   } = useSWR<{
     success: boolean;
-    data: any[];
+    data: Message[];
   }>(
     `/api/admin/workshops/${workshopId}/messages`,
     fetcher
@@ -185,7 +220,8 @@ export default function WorkshopDetailsPage() {
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (err) {
+      console.error('Error sending message:', err);
       toast({
         title: "Error",
         description: "Failed to send message",
@@ -229,7 +265,8 @@ export default function WorkshopDetailsPage() {
           } else {
             throw new Error("Failed to save resource metadata");
           }
-        } catch (error) {
+        } catch (err) {
+          console.error('Error saving resource metadata:', err);
           toast({
             title: "Error",
             description: "Failed to save resource information",
@@ -238,10 +275,11 @@ export default function WorkshopDetailsPage() {
         }
       }
     },
-    onUploadError: (error) => {
+    onUploadError: (err: Error) => {
+      console.error('Upload error:', err);
       toast({
         title: "Upload Failed",
-        description: error.message || "Failed to upload file",
+        description: err.message || "Failed to upload file",
         variant: "destructive",
       });
     },
@@ -665,7 +703,7 @@ export default function WorkshopDetailsPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {resources?.data?.map((resource: any) => (
+                  {resources?.data?.map((resource: Resource) => (
                     <div key={resource.id} className="flex items-center justify-between p-4 border rounded-md">
                       <div className="flex items-center">
                         {resource.type === 'document' && <FileText className="h-8 w-8 text-blue-500 mr-3" />}
@@ -728,7 +766,7 @@ export default function WorkshopDetailsPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {messages?.data?.map((message: any) => (
+                    {messages?.data?.map((message: Message) => (
                       <div
                         key={message.id}
                         className={`flex ${

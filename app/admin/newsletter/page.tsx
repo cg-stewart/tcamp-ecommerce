@@ -1,3 +1,9 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Button } from "@/components/ui/button"
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
@@ -12,13 +18,6 @@ export async function generateMetadata() {
     title: "Newsletter Management - Admin Dashboard",
   };
 }
-
-"use client"
-
-import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Dialog,

@@ -1,3 +1,9 @@
+"use client";
+
+import { useState, useCallback, useEffect } from "react";
+import { AgGridReact } from "@ag-grid-community/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
@@ -12,17 +18,8 @@ export async function generateMetadata() {
     title: "Volunteer Management - Admin Dashboard",
   };
 }
-
-"use client";
-
-import { useState, useCallback, useEffect } from "react";
-import { AgGridReact } from "@ag-grid-community/react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger 
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter 
 } from "@/components/ui/dialog";
 import { 
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue 
@@ -33,8 +30,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { updateVolunteerStatus, contactVolunteer, bulkContactVolunteers, getAllVolunteers } from "@/app/actions/volunteer-actions";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Mail, Phone, RefreshCw } from "lucide-react";
-import { apiDataFetcher } from "@/lib/swr-fetchers";
+import { Mail, Phone, RefreshCw } from "lucide-react";
 
 // Remove AG-Grid CSS imports - these will be imported globally
 

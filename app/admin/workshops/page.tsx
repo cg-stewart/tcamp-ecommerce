@@ -49,7 +49,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/components/ui/use-toast"
 import { useAdminWorkshops, useWorkshopRegistrations } from "@/lib/hooks/use-admin"
-import { Workshop, WorkshopRegistration } from "@/lib/db/schemas/types" // Import proper type definitions
+import { Workshop } from "@/lib/db/schemas/types" // Import proper type definitions
 
 export default function AdminWorkshopsPage() {
   const router = useRouter()

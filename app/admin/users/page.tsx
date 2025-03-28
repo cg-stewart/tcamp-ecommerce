@@ -46,10 +46,10 @@ import { redirect } from "next/navigation";
 
 export async function generateMetadata() {
   const { has } = await auth();
-  const isAdmin = await has({ role: 'org:admin' });
+  const isAdmin = await has({ role: "org:admin" });
 
   if (!isAdmin) {
-    redirect('/');
+    redirect("/");
   }
 
   return {
@@ -57,12 +57,30 @@ export async function generateMetadata() {
   };
 }
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  status: string;
+  role: string;
+  phone: string | null;
+  clerkId: string | null;
+  image: string | null;
+  settings: unknown;
+  metadata: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+  joinDate?: string;
+  workshopsAttended?: number;
+  customDesigns?: number;
+}
+
 export default function AdminUsersPage() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -70,7 +88,12 @@ export default function AdminUsersPage() {
       try {
         const result = await getAllUsers();
         if (result.success && result.data) {
-          setUsers(result.data);
+          // Map the data to include status
+          const usersWithStatus = result.data.map(user => ({
+            ...user,
+            status: (user.metadata as { status?: string } | null)?.status || 'Active'
+          }));
+          setUsers(usersWithStatus);
         }
       } catch (error) {
         console.error("Failed to load users:", error);
@@ -82,18 +105,13 @@ export default function AdminUsersPage() {
     loadUsers();
   }, []);
 
-  const handleViewUser = (user: {
-    id: string;
-    name: string;
-    email: string;
-    status: string;
-    role?: string;
-  }) => {
+  const handleViewUser = (user: User) => {
     setSelectedUser(user);
     setIsViewDialogOpen(true);
   };
 
-  const handleToggleStatus = async (user: { id: string; status: string }) => {
+  const handleToggleStatus = async (user: User | null) => {
+    if (!user) return;
     const newStatus = user.status === "Active" ? "Inactive" : "Active";
 
     try {
@@ -115,7 +133,8 @@ export default function AdminUsersPage() {
       toast({
         description: `User is now ${newStatus}.`,
       });
-    } catch (error) {
+    } catch (err) {
+      console.error('Error updating user status:', err);
       toast({
         title: "Error",
         description: "Failed to update user status. Please try again.",
@@ -128,7 +147,7 @@ export default function AdminUsersPage() {
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.phone.toLowerCase().includes(searchQuery.toLowerCase())
+      (user.phone?.toLowerCase() || '').includes(searchQuery.toLowerCase())
   );
 
   return (

@@ -17,7 +17,7 @@ export async function generateMetadata() {
 
 import type React from "react"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
