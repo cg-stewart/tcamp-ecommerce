@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import HeroSection from "@/components/home/hero-section"
-import WorkshopsSection from "@/components/home/workshops-section"
-import CustomDesignSection from "@/components/home/custom-design-section"
-import ImpactSection from "@/components/home/impact-section"
+import HeroSection from "@/components/home/hero-section";
+import WorkshopsSection from "@/components/home/workshops-section";
+import CustomDesignSection from "@/components/home/custom-design-section";
+import ImpactSection from "@/components/home/impact-section";
 
 export default function Home() {
   return (
@@ -13,6 +13,5 @@ export default function Home() {
       <CustomDesignSection />
       <ImpactSection />
     </div>
-  )
+  );
 }
-

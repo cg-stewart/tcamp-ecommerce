@@ -1,45 +1,47 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { WorkshopCard } from "@/components/workshop-card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
-import { ArrowRight, CalendarIcon, Clock, UsersIcon } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { getAllWorkshops } from "@/app/actions/workshop-actions"
+import { useEffect, useState } from "react";
+import { WorkshopCard } from "@/components/workshop-card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { ArrowRight, CalendarIcon, Clock, UsersIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { getAllWorkshops } from "@/app/actions/workshop-actions";
 
 export default function WorkshopsPage() {
-  const [workshops, setWorkshops] = useState<any[]>([])
-  const [featuredWorkshops, setFeaturedWorkshops] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [workshops, setWorkshops] = useState<any[]>([]);
+  const [featuredWorkshops, setFeaturedWorkshops] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const loadWorkshops = async () => {
       try {
-        const result = await getAllWorkshops()
+        const result = await getAllWorkshops();
         if (result.success && result.data) {
-          setWorkshops(result.data)
-          setFeaturedWorkshops(result.data.filter((workshop) => workshop.isFeatured))
+          setWorkshops(result.data);
+          setFeaturedWorkshops(
+            result.data.filter((workshop) => workshop.isFeatured),
+          );
         }
       } catch (error) {
-        console.error("Failed to load workshops:", error)
+        console.error("Failed to load workshops:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    loadWorkshops()
-  }, [])
+    loadWorkshops();
+  }, []);
 
   const filteredWorkshops = workshops.filter(
     (workshop) =>
       workshop.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       workshop.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       workshop.category.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  );
 
   return (
     <div className="container py-10">
@@ -85,7 +87,9 @@ export default function WorkshopsPage() {
                 </div>
                 <div className="p-6">
                   <h3 className="text-xl font-bold mb-2">{workshop.title}</h3>
-                  <p className="text-muted-foreground mb-4">{workshop.description}</p>
+                  <p className="text-muted-foreground mb-4">
+                    {workshop.description}
+                  </p>
 
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="flex items-center">
@@ -98,14 +102,21 @@ export default function WorkshopsPage() {
                     </div>
                     <div className="flex items-center">
                       <UsersIcon className="h-5 w-5 mr-2 text-luxury-gold" />
-                      <span className="text-sm">{workshop.spotsLeft} spots left</span>
+                      <span className="text-sm">
+                        {workshop.spotsLeft} spots left
+                      </span>
                     </div>
                     <div className="flex items-center">
-                      <span className="font-bold text-luxury-gold">{workshop.price}</span>
+                      <span className="font-bold text-luxury-gold">
+                        {workshop.price}
+                      </span>
                     </div>
                   </div>
 
-                  <Button asChild className="w-full bg-luxury-gold hover:bg-luxury-gold/90 text-luxury-lavender">
+                  <Button
+                    asChild
+                    className="w-full bg-luxury-gold hover:bg-luxury-gold/90 text-luxury-lavender"
+                  >
                     <Link href={`/workshops/${workshop.id}`}>
                       Register Now
                       <ArrowRight className="ml-2 h-4 w-4" />
@@ -122,7 +133,10 @@ export default function WorkshopsPage() {
       {isLoading ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="border rounded-lg p-4 h-[350px] animate-pulse">
+            <div
+              key={i}
+              className="border rounded-lg p-4 h-[350px] animate-pulse"
+            >
               <div className="w-full h-40 bg-luxury-lavender/30 rounded-md mb-4" />
               <div className="w-3/4 h-6 bg-luxury-lavender/30 rounded mb-2" />
               <div className="w-full h-4 bg-luxury-lavender/30 rounded mb-4" />
@@ -141,21 +155,12 @@ export default function WorkshopsPage() {
         </div>
       ) : (
         <div className="text-center py-10">
-          <p className="text-muted-foreground mb-4">No workshops found matching your search criteria.</p>
+          <p className="text-muted-foreground mb-4">
+            No workshops found matching your search criteria.
+          </p>
           <Button onClick={() => setSearchQuery("")}>Clear Search</Button>
         </div>
       )}
-
-      <div className="mt-12 text-center">
-        <h2 className="text-2xl font-bold mb-4">Can't find what you're looking for?</h2>
-        <p className="text-muted-foreground mb-6">
-          We're always adding new workshops. Let us know what you'd like to learn!
-        </p>
-        <Button size="lg" className="bg-luxury-gold hover:bg-luxury-gold/90 text-luxury-lavender">
-          Request a Workshop
-        </Button>
-      </div>
     </div>
-  )
+  );
 }
-
